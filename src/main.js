@@ -10,7 +10,7 @@ const should_debug_log = core.getBooleanInput('verbose');
 const version_target = core.getInput('version');
 const version_string = (version_target !== 'latest' && version_target !== null) ? `tags/${version_target}` : 'latest';
 const token = core.getInput('token');
-const headers = token ? { Authorization: token } : undefined
+const headers = token ? { Authorization: `Bearer ${token}` } : undefined
 
 const debug_log = (input) => {
     if (should_debug_log)
