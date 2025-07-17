@@ -10,6 +10,9 @@ inputs:
     description: Pinned version
     required: false
     default: "latest"
+  token:
+    description: GitHub API token for use when making requests
+    required: false
 
 runs:
   using: 'node20'

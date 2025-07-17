@@ -6,9 +6,11 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const should_debug_log = core.getInput('verbose') !== "false" ?? false;
+const should_debug_log = core.getBooleanInput('verbose');
 const version_target = core.getInput('version');
 const version_string = (version_target !== 'latest' && version_target !== null) ? `tags/${version_target}` : 'latest';
+const token = core.getInput('token');
+const headers = token ? { Authorization: token } : undefined
 
 const debug_log = (input) => {
     if (should_debug_log)
@@ -35,7 +37,7 @@ async function fetch_url() {
         }
 
         return new Promise((resolve, reject) => {
-            fetch(`https://api.github.com/repos/luau-lang/luau/releases/${version_string}`).then(async (response) => {
+            fetch(`https://api.github.com/repos/luau-lang/luau/releases/${version_string}`, { headers }).then(async (response) => {
                 debug_log("[DEBUG] Response: ");
                 debug_log(response);
                 response.json().then(async (json_data) => {
@@ -90,7 +92,7 @@ async function run() {
             luau_url = await fetch_url();
         } catch {
             retries++;
-            if (os.platform() === 'darwin' && retires === 1) {
+            if (os.platform() === 'darwin' && retries === 1) {
                 core.info("macOS runners get ratelimited frequently. Consider using another runner.");
             }
             await new Promise(resolve => setTimeout(resolve, 5000));
@@ -99,7 +101,7 @@ async function run() {
         }
 
         console.log(`Downloading Luau from \"${luau_url}\"`);
-        const response = await fetch(luau_url);
+        const response = await fetch(luau_url, { headers });
         const buffer = await response.buffer();
         const zip_path = path.join(working_dir, 'binary.zip');
         fs.writeFileSync(zip_path, buffer);
