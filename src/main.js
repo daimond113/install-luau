@@ -75,14 +75,10 @@ async function run() {
     try {
         const working_dir = path.join(process.cwd(), "luau-install");
 
-
         if (fs.existsSync(working_dir)) {
             await io.rmRF(working_dir);
             console.log("Deleted Luau Working Directory.");
-            return;
         }
-
-        await io.mkdirP(working_dir);
 
         let luau_url;
         if (retries > 9) {
@@ -99,6 +95,8 @@ async function run() {
             run();
             return;
         }
+
+        await io.mkdirP(working_dir);
 
         console.log(`Downloading Luau from \"${luau_url}\"`);
         const response = await fetch(luau_url, { headers });
